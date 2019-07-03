@@ -1,39 +1,49 @@
-// Type definitions for storybook__svelte x.x
-// Project: https://github.com/baz/foo (Does not have to be to GitHub, but prefer linking to a source code repository rather than to a project website.)
-// Definitions by: My Self <https://github.com/me>
+// Type definitions for @storybook/html 5.0
+// Project: https://github.com/storybookjs/storybook, https://github.com/storybookjs/storybook/tree/master/app/svelte
+// Definitions by: James Starkie <https://github.com/jstarmx>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+// TypeScript Version: 2.8
 
-/*~ If this module is a UMD module that exposes a global variable 'myLib' when
- *~ loaded outside a module loader environment, declare that global here.
- *~ Otherwise, delete this declaration.
- */
-export as namespace myLib;
+/// <reference types="webpack-env" />
 
-/*~ If this module has methods, declare them as functions like so.
- */
-export function myMethod(a: string): string;
-export function myOtherMethod(a: number): number;
+interface Renderable {
+    Component: object;
+    props: {
+        [key: string]: any;
+    }
+}
 
-/*~ You can declare types that are available via importing the module */
-export interface someType {
+export type RenderFunction = () => Renderable | Renderable[];
+
+export interface DecoratorParameters {
+    [key: string]: any;
+}
+export type StoryDecorator = (story: RenderFunction, context: { kind: string, story: string }) => string | null;
+
+export interface Story {
+    readonly kind: string;
+    add(storyName: string, callback: RenderFunction, parameters?: DecoratorParameters): this;
+    addDecorator(decorator: StoryDecorator): this;
+    addParameters(parameters: DecoratorParameters): this;
+}
+
+export function addDecorator(decorator: StoryDecorator): void;
+export function addParameters(parameters: DecoratorParameters): void;
+export function clearDecorators(): void;
+export function configure(fn: () => void, module: NodeModule): void;
+export function setAddon(addon: object): void;
+export function storiesOf(name: string, module: NodeModule): Story;
+export function storiesOf<T>(name: string, module: NodeModule): Story & T;
+export function forceReRender(): void;
+
+export interface StoryObject {
     name: string;
-    length: number;
-    extras?: string[];
+    render: RenderFunction;
 }
 
-/*~ You can declare properties of the module using const, let, or var */
-export const myField: number;
-
-/*~ If there are types, properties, or methods inside dotted names
- *~ of the module, declare them inside a 'namespace'.
- */
-export namespace subProp {
-    /*~ For example, given this definition, someone could write:
-     *~   import { subProp } from 'yourModule';
-     *~   subProp.foo();
-     *~ or
-     *~   import * as yourMod from 'yourModule';
-     *~   yourMod.subProp.foo();
-     */
-    function foo(): void;
+export interface StoryBucket {
+    kind: string;
+    stories: StoryObject[];
 }
+
+export function getStorybook(): StoryBucket[];
